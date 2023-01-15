@@ -16,17 +16,20 @@ refs.startBtn.addEventListener('click', () => {
   refs.startBtn.disabled = true;
   timer.start();
 });
+let intervalId = null;
+let futureDate = null;
 
 const timer = {
   start() {
-    let intervalId = setInterval(() => {
-      const futureDate = new Date(refs.timerFace.value);
+    intervalId = setInterval(() => {
+      // futureDate = new Date(refs.timerFace.value);
       const currentTime = Date.now();
       const deltaTime = futureDate - currentTime;
       const { days, hours, minutes, seconds } = convertMs(deltaTime);
-
+      showTimer({ days, hours, minutes, seconds });
+      
       if (deltaTime >= 0) {
-        showTimer({ days, hours, minutes, seconds });
+          refs.startBtn.disabled = true;
       } else {
         Notiflix.Notify.success('The time is up!!!');
         clearInterval(intervalId);
@@ -41,9 +44,12 @@ const options = {
   defaultDate: new Date(),
   minuteIncrement: 1,
   onClose(selectedDates) {
-    if (selectedDates[0] < new Date()) {
+    if (selectedDates[0] <= new Date()) {
       Notiflix.Notify.failure('Please choose a date in the future');
+      refs.startBtn.disabled = true;
+      
     } else {
+      futureDate = selectedDates[0].getTime();
       refs.startBtn.disabled = false;
     }
   },
